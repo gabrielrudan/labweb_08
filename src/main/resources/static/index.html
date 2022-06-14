@@ -6,11 +6,30 @@
 </head>
 <body>
 	<h1>Turmas e Alunos</h1>
-	
+	<h2>Cadastrar Disciplina</h2>
 	<div>
-        Código: <input type="number" id="turmaCodigo"> <br/>
-        Disciplina: <input type="text" id="turmaDisciplina"> <br/>
-        Semestre: <input type="number" id="turmaSemestre"> <br/>
+        Nome da Disciplina: <input type="text" id="disciplinaNome"> <br/>
+        Créditos: <input type="number" id="disciplinaCreditos"> <br/>
+        <input type="button" value="Salvar Disciplina" onclick="saveDisciplina()">
+    </div>
+    <br>
+	<h2>Lista de Disciplinas</h2>
+    <table>
+	    <thead>
+	    	<tr>
+	    		<th>Código</th>
+	    		<th>Nome</th>
+	    		<th>Créditos</th>
+    		</tr>
+	    </thead>
+	    <tbody id="listaDisciplinas"></tbody>
+    </table>
+    <br>
+	<h2>Cadastrar Turma</h2>
+	<div>
+        Disciplina: <select id="selectDisciplina"></select> <br/>
+        Código da Disciplina: <input type="number" id="turmaDisciplina"> <br/>
+        Primeiro Horário: <input type="time" id="turmaHorario"> <br/>
         <input type="button" value="Salvar Turma" onclick="saveTurma()">
     </div>
     <br>
@@ -72,6 +91,13 @@
 	    		<th>Matrícula</th>
 	    		<th>Nome do Aluno</th>
 	    		<th>Email</th>
+	    		<th>Telefone</th>
+	    		<th>Data de Nascimento</th>
+	    		<th>Estado</th>
+	    		<th>Cidade</th>
+	    		<th>Logradouro</th>
+	    		<th>Número</th>
+	    		<th>CEP</th>
 	    		<th>Editar</th>
 	    		<th>Deletar</th>
 	    		<th>Adicionar Turma</th>
@@ -81,9 +107,17 @@
     </table>
     <div>
     <h2>Editar Aluno</h2>
-        Matrícula: <input type="number" id="alunoMatriculaUP"> <br/>
+    	Matrícula: <input type="number" id="alunoMatriculaUP" readonly> <br/>
         Nome: <input type="text" id="alunoNomeUP"> <br/>
         Email: <input type="text" id="alunoEmailUP"> <br/>
+        Telefone: <input type="text" id="alunoTelefoneUP"> <br/>
+        Data de Nascimento: <input type="date" id="alunoDataNascUP"> <br/> <br/>
+        Endereço do Aluno <br/> <br/>
+        Estado: <input type="text" id="alunoEstadoUP" maxlength="2"> <br/>
+        Cidade: <input type="text" id="alunoCidadeUP"> <br/>
+        Logradouro: <input type="text" id="alunoLogradouroUP"> <br/>
+        Número: <input type="text" id="alunoNumeroUP" maxlength="4"> <br/>
+        CEP: <input type="number" id="alunoCEPUP" maxlength="8"> <br/>
         <input type="button" value="Editar Aluno" onclick="editarAluno()">
     </div>
     <br>
@@ -97,6 +131,52 @@
     </div>
     
     <script type="text/javascript">
+	    var xhttp4 = new XMLHttpRequest();
+            xhttp4.open("GET", "/api/disciplinas", true);
+            xhttp4.onload = function() {
+                if (this.readyState == 4 && this.status == 200) {
+
+                    disciplinas = JSON.parse(xhttp4.responseText);
+                    selectDisciplinas = document.getElementById("selectDisciplina");
+                   
+                    select = '<option>--Selecione a disciplina--</option>';
+                    
+                    for (const i in disciplinas){
+                        let d = disciplinas[i];
+                        select += '<option value="'+d.codigo+'">';
+                        select += d.nome + '</option>';
+                    }
+                   
+                    //select += '<option>';
+                    selectDisciplinas.innerHTML = select;
+                }
+            };
+    		xhttp4.send();
+	</script>
+    
+    <script type="text/javascript">
+	    var xhttp3 = new XMLHttpRequest();
+            xhttp3.open("GET", "/api/disciplinas", true);
+            xhttp3.onload = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    disciplinas = JSON.parse(xhttp3.responseText);
+                   
+                    listaDisciplinasDiv = document.getElementById("listaDisciplinas");
+                    lista3 = '<tr>';
+                   
+                    for (const i in disciplinas){
+                        let d = disciplinas[i];
+                        lista3 += '<td>' + d.codigo + ' </td> <td> ' + d.nome + ' </td> <td>' + d.creditos + '</td> </tr>';
+                    }
+                   
+                    lista3 += '<tr>';
+                    listaDisciplinasDiv.innerHTML = lista3;
+                }
+            };
+    		xhttp3.send();
+	</script>
+    
+    <script type="text/javascript">
 	    var xhttp2 = new XMLHttpRequest();
             xhttp2.open("GET", "/api/turmas", true);
             xhttp2.onload = function() {
@@ -108,7 +188,7 @@
                    
                     for (const i in turmas){
                         let t = turmas[i];
-                        lista2 += '<td>' + t.codigo + ' </td> <td> ' + t.disciplina + ' </td> <td> ' + t.semestre + '</td>' + '<td> ' + '<input type="button" value="Ver Alunos" onclick="verAlunos('+ t.codigo +')"> </td> <td>' + '<input type="button" value="Editar" onclick="passarTurma('+t.codigo+',\''+t.disciplina+'\','+t.semestre+')"> </td> <td>' + '<input type="button" value="Deletar" onclick="deletarTurma('+ t.codigo +')"> </td>' + '</tr>';
+                        lista2 += '<td>' + t.codigo + ' </td> <td> ' + t.disciplina + ' </td> <td> ' + '<input type="button" value="Ver Alunos" onclick="verAlunos('+ t.codigo +')"> </td> <td>' + '<input type="button" value="Editar" onclick="passarTurma('+t.codigo+',\''+t.disciplina+'\','+t.semestre+')"> </td> <td>' + '<input type="button" value="Deletar" onclick="deletarTurma('+ t.codigo +')"> </td>' + '</tr>';
                     }
                    
                     lista2 += '<tr>';
@@ -130,7 +210,7 @@
                    
                     for (const i in alunos){
                         let a = alunos[i];
-                        lista += '<td>' + a.matricula + ' </td> <td> ' + a.nome + ' </td> <td> ' + a.email + '</td> <td>' + '<input type="button" value="Editar" onclick="passarAluno('+a.matricula+',\''+a.nome+'\',\''+a.email+'\')"> </td> <td>' + '<input type="button" value="Deletar" onclick="deletarAluno('+ a.matricula +')"> </td> <td>' + '<input type="button" value="Adicionar Turma" onclick="passarAluno2('+a.matricula+',\''+a.nome+'\',\''+a.email+'\')"> </td>' + '</tr>';
+                        lista += '<td>' + a.matricula + ' </td> <td> ' + a.nome + ' </td> <td> ' + a.email + '</td> <td>' + a.telefone + '</td> <td>' + a.dataNasc + '</td> <td>' + a.endereco.estado + '</td> <td>' + a.endereco.cidade + '</td> <td>' + a.endereco.logradouro + '</td> <td>' + a.endereco.numero + '</td> <td>' + a.endereco.cep + '</td> <td>' + '<input type="button" value="Editar" onclick="passarAluno('+a.matricula+',\''+a.nome+'\',\''+a.email+'\',\''+a.telefone+'\',\''+a.dataNasc+'\',\''+a.endereco.estado+'\',\''+a.endereco.cidade+'\',\''+a.endereco.logradouro+'\',\''+a.endereco.numero+'\','+a.endereco.cep+')"> </td> <td>' + '<input type="button" value="Deletar" onclick="deletarAluno('+ a.matricula +')"> </td> <td>' + '<input type="button" value="Adicionar Turma" onclick="passarAluno2('+a.matricula+',\''+a.nome+'\',\''+a.email+'\')"> </td>' + '</tr>';
                     }
                    
                     lista += '<tr>';
@@ -189,11 +269,13 @@
     
     <script type="text/javascript">
 	    function saveTurma(){
-		        let codigo = document.getElementById("turmaCodigo").value;
-		        let disciplina = document.getElementById("turmaDisciplina").value;
-		        let semestre = document.getElementById("turmaSemestre").value;
+	        	let codigo = document.getElementById("turmaDisciplina").value;
+				var xhttp = new XMLHttpRequest();
+				xhttp.open("GET", '/api/disciplinas/'+codigo, true);
+				let disciplina = JSON.parse(xhttp.responseText);		
+		        let horarios = document.getElementById("turmaHorario").value;
 		        let alunos = [];
-		        newturma = {codigo: parseInt(codigo), disciplina: disciplina, semestre: parseInt(semestre), alunos: alunos};
+		        newturma = {disciplina: disciplina, horarios: horarios, alunos: alunos};
 		       
 		        var xhr = new XMLHttpRequest();
 		        xhr.open("POST", '/api/turmas', true);
@@ -201,6 +283,21 @@
 		        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 		
 		        xhr.send(JSON.stringify(newturma));
+	    }
+    </script>
+    
+    <script type="text/javascript">
+	    function saveDisciplina(){
+		        let nome = document.getElementById("disciplinaNome").value;
+		        let creditos = document.getElementById("disciplinaCreditos").value;
+		        newdisciplina = {nome: nome, creditos: parseInt(creditos)};
+		       
+		        var xhr = new XMLHttpRequest();
+		        xhr.open("POST", '/api/disciplinas', true);
+		
+		        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+		
+		        xhr.send(JSON.stringify(newdisciplina));
 	    }
     </script>
     
@@ -238,10 +335,17 @@
     </script>
     
     <script type="text/javascript">
-	    function passarAluno(matricula,nome,email){
-				document.getElementById("alunoMatriculaUP").value = parseInt(matricula);
+	    function passarAluno(matricula,nome,email,telefone,dataNasc,estado,cidade,logradouro,numero,cep){
+				document.getElementById("alunoMatriculaUP").value = matricula;
 		        document.getElementById("alunoNomeUP").value = nome;
 		        document.getElementById("alunoEmailUP").value = email;
+		        document.getElementById("alunoTelefoneUP").value = telefone;
+		        document.getElementById("alunoDataNascUP").value = dataNasc;
+		        document.getElementById("alunoEstadoUP").value = estado;
+		        document.getElementById("alunoCidadeUP").value = cidade;
+		        document.getElementById("alunoLogradouroUP").value = logradouro;
+		        document.getElementById("alunoNumeroUP").value = numero;
+		        document.getElementById("alunoCEPUP").value = cep;
 	    }
     </script>
     
@@ -263,10 +367,18 @@
     
     <script type="text/javascript">
 	    function editarAluno(){
-		    	let matricula = document.getElementById("alunoMatriculaUP").value;
+				let matricula = document.getElementById("alunoMatriculaUP").value;
 		        let nome = document.getElementById("alunoNomeUP").value;
 		        let email = document.getElementById("alunoEmailUP").value;
-		        alunoUpdate = {matricula: parseInt(matricula), nome: nome, email: email};
+		        let telefone = document.getElementById("alunoTelefoneUP").value;
+		        let dataNasc = document.getElementById("alunoDataNascUP").value;
+		        let estado = document.getElementById("alunoEstadoUP").value;
+		        let cidade = document.getElementById("alunoCidadeUP").value;
+		        let logradouro = document.getElementById("alunoLogradouroUP").value;
+		        let numero = document.getElementById("alunoNumeroUP").value;
+		        let cep = document.getElementById("alunoCEPUP").value;
+		        endereco = {estado: estado, cidade: cidade, logradouro: logradouro, numero: numero, cep: parseInt(cep)};
+		        alunoUpdate = {nome: nome, email: email, telefone: telefone, dataNasc: dataNasc, endereco: endereco};
 		        
 		        var xhr = new XMLHttpRequest();
 	            xhr.open("PUT", '/api/alunos/'+matricula, true);

@@ -4,8 +4,10 @@ package io.javabrains.springbootstarter.turma;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
@@ -27,7 +29,11 @@ public class Turma {
 	@ElementCollection
 	@Temporal(TemporalType.TIME)
 	public List<Date> horarios;
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.LAZY,
+		      cascade = {
+		              CascadeType.PERSIST,
+		              CascadeType.MERGE
+		          })
 	public List<Aluno> alunos;
 	
 	public int getCodigo() {
@@ -50,7 +56,7 @@ public class Turma {
 		return horarios;
 	}
 
-	public void setSemestre(List<Date> horarios) {
+	public void setHorarios(List<Date> horarios) {
 		this.horarios = horarios;
 	}
 
@@ -60,6 +66,19 @@ public class Turma {
 
 	public void setAlunos(List<Aluno> alunos) {
 		this.alunos = alunos;
+	}
+	
+	public void addAluno(Aluno aluno) {
+		this.alunos.add(aluno);
+		aluno.getTurmas().add(this);
+	}
+	
+	public void removeAluno(int matricula) {
+		Aluno aluno = this.alunos.stream().filter(a -> a.getMatricula() == matricula).findFirst().orElse(null);
+		if (aluno != null) {
+			this.alunos.remove(aluno);
+			aluno.getTurmas().remove(this);
+		}
 	}
 	
 	public Turma() {
